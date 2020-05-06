@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik:2.2
+    ports:
+      - 8080:8080
+      - 80:80
+      - 443:443
+      - 8081:9090
+    command:
+      - '--providers.docker'
+      - '--api.insecure=true'
+      # - '--api.dashboard=false'
+      - '--providers.docker.swarmMode=true'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.other.address=:9090'
+    #   - '--certificatesResolvers.myresolver.acme.email=2509934810@qq.com'
+    #   - '--certificatesResolvers.myresolver.acme.storage=acme.json'
+    #   - '--certificatesResolvers.myresolver.acme.httpChallenge.entryPoint=web'
+    #   - '--certificatesResolvers.myresolver.acme.dnsChallenge=true'
+    #   - '--certificatesResolvers.myresolver.acme.dnsChallenge.provider=digitalocean'
+    #   - '--certificatesResolvers.myresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.http.routers.api.rule=Host(`traefik.example.com`)"
+        - "traefik.http.routers.api.service=api@internal"
+        - "traefik.http.routers.api.middlewares=auth"
+        - "traefik.http.middlewares.auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
+  jenkins_master:
+    image: jenkinsci/blueocean
+    volumes:
+      - /home/lei/workspace/python/毕设/lovehome_backend/ansible/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - traefik.http.routers.jenkins.rule=Host(`jenkins.lovehome.com`)
+        - traefik.http.routers.jenkins.entrypoints=web
+        - traefik.http.routers.jenkins.service=jenkins-service-1
+        - traefik.http.services.jenkins-service-1.loadbalancer.server.port=8080
+  gittea:
+    image: gitea/gitea:latest
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    volumes:
+      - /home/lei/workspace/python/毕设/love_home/ansible/gittea:/data
+    deploy:
+      placement:
+        constraints: [node.role==manager]
+      labels:
+        - traefik.http.routers.gittea.rule=Host(`git.lovehome.com`)
+        - traefik.http.routers.gittea.entrypoints=web
+        - traefik.http.routers.gittea.service=gittea-server
+        - traefik.http.services.gittea-server.loadbalancer.server.port=3000
+  web:
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:latest
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
+      labels:
+        - traefik.http.routers.backend.rule=Host(`www.lovehome.com`)
+        - traefik.http.routers.backend.entrypoints=web
+        - traefik.http.routers.backend.service=backend-service
+        - traefik.http.services.backend-service.loadbalancer.server.port=5000
