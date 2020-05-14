@@ -35,4 +35,10 @@ node  /mnt/docker_data
 
 ansible all -m shell -a 'poweroff'
 
-ansible all -m shell -a 'docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=lei123 -e MYSQL_DATABASE=lei mariadb:1.0 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci'
+ansible db -m shell -a 'docker run -d -v /root/mariadb:/var/lib/mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=lei123 -e MYSQL_DATABASE=lei mariadb:10 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci'
+
+
+ docker run -P -e MYSQL_SERVER=172.20.10.6 -e REDIS_SERVE=172.20.10.6 -e FLASK_ENV production registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.1
+
+
+ docker run -P -e MYSQL_SERVER=172.20.10.6 -e REDIS_SERVE=172.20.10.6 -e FLASK_ENV=production registry.cn-hangzhou.aliyuncs.com/lovehome/avator:latest

@@ -28,60 +28,64 @@ services:
       placement:
         constraints: [node.role == manager]
       labels:
-        - "traefik.http.routers.api.rule=Host(`traefik.example.com`)"
+        - "traefik.http.routers.api.rule=Host(`test_traefik.lovehome.com`)"
         - "traefik.http.routers.api.service=api@internal"
         - "traefik.http.routers.api.middlewares=auth"
         - "traefik.http.middlewares.auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
-  jenkins_master:
-    image: jenkinsci/blueocean
-    volumes:
-      - /home/lei/workspace/python/毕设/lovehome_backend/ansible/jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      placement:
-        constraints: [node.role == manager]
-      labels:
-        - traefik.http.routers.jenkins.rule=Host(`jenkins.lovehome.com`)
-        - traefik.http.routers.jenkins.entrypoints=web
-        - traefik.http.routers.jenkins.service=jenkins-service-1
-        - traefik.http.services.jenkins-service-1.loadbalancer.server.port=8080
-  gittea:
-    image: gitea/gitea:latest
-    environment:
-      - USER_UID=1000
-      - USER_GID=1000
-    restart: always
-    volumes:
-      - /home/lei/workspace/python/毕设/love_home/ansible/gittea:/data
-    deploy:
-      placement:
-        constraints: [node.role==manager]
-      labels:
-        - traefik.http.routers.gittea.rule=Host(`git.lovehome.com`)
-        - traefik.http.routers.gittea.entrypoints=web
-        - traefik.http.routers.gittea.service=gittea-server
-        - traefik.http.services.gittea-server.loadbalancer.server.port=3000
+#   jenkins_master:
+#     image: jenkinsci/blueocean
+#     volumes:
+#       - /home/lei/workspace/python/毕设/lovehome_backend/ansible/jenkins_home:/var/jenkins_home
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     deploy:
+#       placement:
+#         constraints: [node.role == manager]
+#       labels:
+#         - traefik.http.routers.jenkins.rule=Host(`test_jenkins.lovehome.com`)
+#         - traefik.http.routers.jenkins.entrypoints=web
+#         - traefik.http.routers.jenkins.service=jenkins-service-1
+#         - traefik.http.services.jenkins-service-1.loadbalancer.server.port=8080
+#   gittea:
+#     image: gitea/gitea:latest
+#     environment:
+#       - USER_UID=1000
+#       - USER_GID=1000
+#     restart: always
+#     volumes:
+#       - /home/lei/workspace/python/毕设/love_home/ansible/gittea:/data
+#     deploy:
+#       placement:
+#         constraints: [node.role==manager]
+#       labels:
+#         - traefik.http.routers.gittea.rule=Host(`test_git.lovehome.com`)
+#         - traefik.http.routers.gittea.entrypoints=web
+#         - traefik.http.routers.gittea.service=gittea-server
+#         - traefik.http.services.gittea-server.loadbalancer.server.port=3000
   web:
-    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.1
-    env_file: .env_file
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.3
+    env_file: .env_test_file
+    extra_hosts: 
+      - "test_avator.lovehome.com:172.20.10.5"
     deploy:
       replicas: 2
       placement:
         constraints: [node.role == worker]
       labels:
-        - traefik.http.routers.backend.rule=Host(`www.lovehome.com`)
+        - traefik.http.routers.backend.rule=Host(`test_www.lovehome.com`)
         - traefik.http.routers.backend.entrypoints=web
         - traefik.http.routers.backend.service=backend-service
         - traefik.http.services.backend-service.loadbalancer.server.port=5000
   avator:
-    image: registry.cn-hangzhou.aliyuncs.com/lovehome/avator:1.0
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/avator:1.1
     env_file: .env_file
+    volumes: 
+      - /home/lei/workspace/python/毕设/lovehome_ansible/avator/img:/workspace/lovehome/backend/static
     deploy:
       replicas: 1
       placement:
         constraints: [node.role == manager]
       labels:
-        - traefik.http.routers.avator.rule=Host(`avator.lovehome.com`)
+        - traefik.http.routers.avator.rule=Host(`test_avator.lovehome.com`)
         - traefik.http.routers.avator.entrypoints=web
         - traefik.http.routers.avator.service=avator-service
         - traefik.http.services.avator-service.loadbalancer.server.port=5000
