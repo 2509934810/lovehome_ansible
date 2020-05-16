@@ -6,3 +6,6 @@
 [db]
 172.20.10.6 ansible_ssh_user=root
 
+[kafka]
+172.20.10.8 ansible_ssh_user=root
+

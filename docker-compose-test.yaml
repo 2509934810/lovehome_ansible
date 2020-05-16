@@ -62,12 +62,12 @@ services:
 #         - traefik.http.routers.gittea.service=gittea-server
 #         - traefik.http.services.gittea-server.loadbalancer.server.port=3000
   web:
-    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.3
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.6
     env_file: .env_test_file
     extra_hosts: 
       - "test_avator.lovehome.com:172.20.10.5"
     deploy:
-      replicas: 2
+      replicas: 3
       placement:
         constraints: [node.role == worker]
       labels:
