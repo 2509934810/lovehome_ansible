@@ -62,7 +62,7 @@ services:
 #         - traefik.http.routers.gittea.service=gittea-server
 #         - traefik.http.services.gittea-server.loadbalancer.server.port=3000
   web:
-    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.6
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/backend:1.9.3
     env_file: .env_test_file
     extra_hosts: 
       - "test_avator.lovehome.com:172.20.10.5"
@@ -76,7 +76,7 @@ services:
         - traefik.http.routers.backend.service=backend-service
         - traefik.http.services.backend-service.loadbalancer.server.port=5000
   avator:
-    image: registry.cn-hangzhou.aliyuncs.com/lovehome/avator:1.1
+    image: registry.cn-hangzhou.aliyuncs.com/lovehome/avator:1.2
     env_file: .env_file
     volumes: 
       - /home/lei/workspace/python/毕设/lovehome_ansible/avator/img:/workspace/lovehome/backend/static
